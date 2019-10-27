@@ -7,21 +7,21 @@ import (
 	"os"
 )
 
-func Check(e error) {
+func check(e error) {
 	if e != nil {
 		panic(e)
 	}
 }
 
-func Readfile(filename string) []byte {
-	dat, err := ioutil.ReadFile(filename)
-	Check(err)
+func Readfile(filepath string) []byte {
+	dat, err := ioutil.ReadFile(filepath)
+	check(err)
 	return dat
 }
 
-func ReadfileStream(filename string) {
+func ReadfileStream(filepath string) {
 	const BufferSize = 10000
-	file, err := os.Open(filename)
+	file, err := os.Open(filepath)
 	if err != nil {
 		fmt.Println(err)
 		return
