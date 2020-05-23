@@ -13,22 +13,22 @@ func check(e error) {
 	}
 }
 
-func Readfile(filepath string) []byte {
+// ReadFile reads the whole file into memory
+func ReadFile(filepath string) []byte {
 	dat, err := ioutil.ReadFile(filepath)
 	check(err)
 	return dat
 }
 
-func ReadfileStream(filepath string) {
-	const BufferSize = 10000
+// ReadFileStream reads the file as a stream, keeping memory use low
+func ReadFileStream(filepath string, bufferSize int, f func([]byte)) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 	defer file.Close()
 
-	buffer := make([]byte, BufferSize)
+	buffer := make([]byte, bufferSize)
 
 	for {
 		bytesread, err := file.Read(buffer)
@@ -41,6 +41,6 @@ func ReadfileStream(filepath string) {
 			break
 		}
 
-		fmt.Println("bytes read: ", bytesread)
+		f(buffer[:bytesread])
 	}
 }
