@@ -1,6 +1,7 @@
 package fileutils
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -21,7 +22,7 @@ func ReadFile(filepath string) []byte {
 }
 
 // ReadFileStream reads the file as a stream, keeping memory use low
-func ReadFileStream(filepath string, bufferSize int, f func([]byte)) {
+func ReadFileStream(filepath string, bufferSize int, fn func([]byte)) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		fmt.Println(err)
@@ -41,6 +42,37 @@ func ReadFileStream(filepath string, bufferSize int, f func([]byte)) {
 			break
 		}
 
-		f(buffer[:bytesread])
+		fn(buffer[:bytesread])
 	}
+}
+
+// ReadFileWithReadString will read line by line without the 65536 character limit
+func ReadFileWithReadString(filepath string, fn func(string)) (err error) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Start reading from the file with a reader.
+	reader := bufio.NewReader(file)
+	var line string
+	for {
+		line, err = reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			break
+		}
+
+		// Process the line here.
+		fn(line)
+
+		if err != nil {
+			break
+		}
+	}
+	if err != io.EOF {
+		fmt.Printf(" > Failed with error: %v\n", err)
+		return err
+	}
+	return
 }
